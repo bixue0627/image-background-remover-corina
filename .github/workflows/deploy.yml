@@ -1,9 +1,0 @@
-name: Deploy to Cloudflare Pages
-
-on:
-  push:
-    branches:
-      - main
-
-# No jobs needed - Cloudflare will auto-deploy from GitHub
-# Just push your code and Cloudflare builds automatically
