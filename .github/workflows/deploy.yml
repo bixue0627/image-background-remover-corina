@@ -25,12 +25,12 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          REMOVE_BG_API_KEY: ${{ secrets.REMOVE_BG_API_KEY }}
 
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy to Cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: image-background-remover-corina
-          directory: .next
-          # For Next.js, you might need to adjust this path
+          command: pages deploy .next --project-name=image-background-remover-corina
