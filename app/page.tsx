@@ -2,6 +2,8 @@
 
 import { useState, useRef } from "react";
 
+const REMOVE_BG_API_KEY = "GCXmdDUHYYjgTCMMVdmQVsNB";
+
 export default function Home() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [originalPreview, setOriginalPreview] = useState<string | null>(null);
@@ -39,16 +41,21 @@ export default function Home() {
 
     try {
       const formData = new FormData();
-      formData.append("image", selectedFile);
+      formData.append("image_file", selectedFile);
+      formData.append("size", "auto");
+      formData.append("format", "png");
 
-      const response = await fetch("/api/remove", {
+      const response = await fetch("https://api.remove.bg/v1.0/removebg", {
         method: "POST",
+        headers: {
+          "X-Api-Key": REMOVE_BG_API_KEY,
+        },
         body: formData,
       });
 
       if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error || "Failed to process image");
+        const errorText = await response.text();
+        throw new Error(errorText || "Failed to remove background");
       }
 
       const blob = await response.blob();
