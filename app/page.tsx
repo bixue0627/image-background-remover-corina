@@ -55,13 +55,16 @@ export default function Home() {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(errorText || "Failed to remove background");
+        console.error("Remove.bg error:", response.status, errorText);
+        throw new Error(errorText || `API error: ${response.status}`);
       }
 
+      // Remove.bg returns the image directly as binary
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       setResultPreview(url);
     } catch (e: unknown) {
+      console.error("Error:", e);
       setError(e instanceof Error ? e.message : "Failed to process image");
     } finally {
       setLoading(false);
