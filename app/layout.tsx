@@ -6,12 +6,14 @@ export const metadata: Metadata = {
   description: "Image background Remover application",
 };
 
-export default function RootLayout(
-  children: ReactNode>
-) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-   <html lang="en">
-    <body>ãhildren</body>
-  </html>
+    <html lang="en">
+      <body>{children}</body>
+    </html>
   );
 }
