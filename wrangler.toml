@@ -1,5 +1,0 @@
-name = "image-background-remover-corina"
-compatibility_date = "2024-01-01"
-
-# Remove.bg API key - set via Cloudflare dashboard
-# Or run: npx wrangler secret put REMOVE_BG_API_KEY
