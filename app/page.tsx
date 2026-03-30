@@ -44,16 +44,19 @@ export default function Home() {
     setError("");
 
     try {
-      // Convert file to ArrayBuffer
       const arrayBuffer = await selectedFile.arrayBuffer();
-      const base64 = btoa(
-        new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), "")
-      );
+      const bytes = new Uint8Array(arrayBuffer);
+      let binary = "";
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const base64 = btoa(binary);
 
       const formData = new FormData();
       formData.append("image_file_b64", base64);
       formData.append("size", "auto");
       formData.append("format", "png");
+      formData.append("bg_color", "transparent");
 
       const response = await fetch("https://api.remove.bg/v1.0/removebg", {
         method: "POST",
@@ -63,15 +66,15 @@ export default function Home() {
         body: formData,
       });
 
-      console.log("Response status:", response.status);
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Remove.bg error:", errorText);
+        console.error("Remove.bg error:", response.status, errorText);
         throw new Error(errorText || `API error: ${response.status}`);
       }
 
       const blob = await response.blob();
+      console.log("Result blob size:", blob.size, "type:", blob.type);
+      
       const url = URL.createObjectURL(blob);
       setResultPreview(url);
     } catch (e: unknown) {
@@ -86,7 +89,7 @@ export default function Home() {
     if (resultPreview) {
       const link = document.createElement("a");
       link.href = resultPreview;
-      link.download = "result.png";
+      link.download = "removed-bg.png";
       link.click();
     }
   };
@@ -162,8 +165,14 @@ export default function Home() {
               )}
               {resultPreview && (
                 <div>
-                  <p style={{ color: "#444", marginBottom: "8px" }}>Result</p>
-                  <div style={{ background: "#f0f0f0", padding: "12px", borderRadius: "12px" }}>
+                  <p style={{ color: "#444", marginBottom: "8px" }}>Result (Transparent Background)</p>
+                  <div style={{ 
+                    background: "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)",
+                    backgroundSize: "20px 20px",
+                    backgroundPosition: "0 0, 0 10px, 10px -10px, -10px 0px",
+                    padding: "12px", 
+                    borderRadius: "12px" 
+                  }}>
                     <img src={resultPreview} alt="Result" style={{ width: "100%", borderRadius: "12px" }} />
                   </div>
                   <button
@@ -180,7 +189,7 @@ export default function Home() {
                       cursor: "pointer",
                     }}
                   >
-                    Download
+                    Download PNG
                   </button>
                 </div>
               )}
