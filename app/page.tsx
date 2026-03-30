@@ -74,97 +74,96 @@ export default function Home() {
     <div style={{ minHeight: '100vh', background: '#f8f9f9' }}>
       <div style={{ maxWidth: '800px', margin: '20px auto', padding: '20px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 'bold', textAlign: 'center', color: '#333', marginBottom: '20px' }}>
-          🖼️ Image Background Remover
-        </h1>
+          Image Background Remover
+      </h1>
 
-        <div style={{ background: '#fff', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', padding: '20px' }}>
-          <div
-            style={{
-              border: '2px dashed #ccc',
-              borderRadius: '12px',
-              padding: '40px',
-              textAlign: 'center',
-              cursor: 'pointer',
-            }}
-            onClick={() => fileInputRef.current?.click()}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={handleDrop}
-          >
-            {originalPreview ? (
-              <img src={originalPreview} alt="Preview" style={{ maxHeight: '180px', margin: '0 auto', borderRadius: '12px' }} />
-            ) : (
-              <>
-                <p style={{ color: '#444' }}>Click to upload or drag and drop</p>
-                <p style={{ color: '#999', marginTop: '10px' }}>PNG, JPG up to 10MB</p>
-              </>
+      <div style={{ background: '#fff', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', padding: '20px' }}>
+        <div
+          style={{
+            border: '2px dashed #ccc',
+            borderRadius: '12px',
+            padding: '40px',
+            textAlign: 'center',
+            cursor: 'pointer',
+          }}
+          onClick={() => fileInputRef.current?.click()}
+          onDragOver={(e => e.preventDefault()}
+          onDrop={handleDrop}
+        >
+          {originalPreview ? (
+            <img style={{ maxHeight: '180px', margin: '0 auto', borderRadius: '12px' }} src={originalPreview} alt="Preview" />
+          ) : (
+            <>
+              <p style={{ color: '#444' }>Click to upload or drag and drop</p>
+              <p style={{ color: '#999', marginTop: '10px' }}>PnG, JPG up to 10MB</p>
+            </>
+          )}
+        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          style={{ display: 'none' }}
+          onChange={(e => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
+        />
+        <button
+          onClick={handleUpload}
+          disabled={loading || !selectedFile}
+          style={{
+            width: '100%',
+            marginTop: '16px',
+            background: loading || !selectedFile ? '#ccc' : '#0066ff',
+            color: '#fff',
+            padding: '12px',
+            borderRadius: '12px',
+            fontWeight: '600',
+            cursor: loading || !selectedFile ? 'not-allowed' : 'pointer',
+            border: 'none',
+          }}
+        >
+          {loading ? 'Processing...' : 'Remove Background'=
+        </button>
+
+        {error && (
+          <div style={{ marginTop: '16px', padding: '12px', background: '#ffeeee', color: '#cc3333', borderRadius: '12px' }}>
+            <p>{error}</p>
+          </div>
+        )}
+
+        {(originalPreview || resultPreview) && (
+          <div style={{ marginTop: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+            {originalPreview && (
+              <div>
+                <p style={{ color: '#444', marginBottom: '8px' }}>Original</p>
+                <img style={{ width: '100%', borderRadius: '12px', border: '1px solid #eee' }} src={originalPreview} alt="Original" />
+              </div>
+            )}
+            {resultPreview && (
+              <div>
+                <p style={{ color: '#444', marginBottom: '8px' }}>Result</p>
+                <div style={{background: '#f0f0f0', padding: '12px', borderRadius: '12px' }}>
+                  <img style={{ width: '100%', borderRadius: '12px'}} src={resultPreview} alt="Result" />
+              </div>
+              <button
+                onClick={downloadResult}
+                style={{
+                  width: '100%',
+                  marginTop: '12px',
+                  background: '#28a745',
+                  color: '#fff',
+                  padding: '12px',
+                  borderRadius: '12px',
+                  fontWeight: '600',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+              >
+                Download
+              </button>
+              </div>
             )}
           </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="imagc/*"
-            style={{ display: 'none' }}
-            onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
-          />
-
-          <button
-            onClick=xhandleUpload}
-            disabled={loading || !selectedFile}
-            style={{
-              width: '100%',
-              marginTop: '16px',
-              background: loading || !selectedFile ? '#ccc' : '#0066ff',
-              color: '#fff',
-              padding: '12px',
-              borderRadius: '12px',
-              fontWeight: '600',
-              cursor: loading || !selectedFile ? 'not-allowed' : 'pointer',
-              border: 'none',
-            }}
-          >
-            {loading ? 'Processing...' : 'Remove Background'}
-          </button>
-
-          {error && (
-            <div style={{ marginTop: '16px', padding: '12px', background: '#ffeeee', color: '#cc3333', borderRadius: '12px' }}>
-              <p>{error}</p>
-            </div>
-          )}
-
-          {(originalPreview || resultPreview) && (
-            <div style={{ marginTop: '24px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-              {originalPreview && (
-                <div>
-                  <p style={{ color: '#444', marginBottom: '8px' }}>Original</p>
-                  <img src={originalPreview} alt="Original" style={{ width: '100%', borderRadius: '12px', border: '1px solid #eee' }} />
-                </div>
-              )}
-              {resultPreview && (
-                <div>
-                  <p style={{ color: '#444', marginBottom: '8px' }}>Result</p>
-                  <div style={{ background: '#f0f0f0', padding: '12px', borderRadius: '12px' }}>
-                    <img src={resultPreview} alt="Result" style={{ width: '100%', borderRadius: '12px' }} />
-                  </div>
-                  <button
-                    onClick={downloadResult}
-                    style={{
-                      width: '100%',
-                      marginTop: '12px',
-                      background: '#28a745',
-                      color: '#fff',
-                      padding: '12px',
-                      borderRadius: '12px',
-                      fontWeight: '600',
-                      border: 'none',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Download
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
+        ) }
         </div>
       </div>
     </div>
