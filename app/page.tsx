@@ -44,21 +44,14 @@ export default function Home() {
     setError("");
 
     try {
-      // Read file as base64
-      const reader = new FileReader();
-      const base64Promise = new Promise<string>((resolve, reject) => {
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-      });
-      reader.readAsDataURL(selectedFile);
-      const base64 = await base64Promise;
-      
-      // Remove data URL prefix
-      const base64Data = base64.split(",")[1];
+      // Convert file to ArrayBuffer
+      const arrayBuffer = await selectedFile.arrayBuffer();
+      const base64 = btoa(
+        new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), "")
+      );
 
-      // Call Remove.bg API
       const formData = new FormData();
-      formData.append("image_file_b64", base64Data);
+      formData.append("image_file_b64", base64);
       formData.append("size", "auto");
       formData.append("format", "png");
 
@@ -78,10 +71,7 @@ export default function Home() {
         throw new Error(errorText || `API error: ${response.status}`);
       }
 
-      // Remove.bg returns the image directly as binary
       const blob = await response.blob();
-      console.log("Blob size:", blob.size);
-      
       const url = URL.createObjectURL(blob);
       setResultPreview(url);
     } catch (e: unknown) {
