@@ -17,6 +17,10 @@ export default function Home() {
       setError("File too large (max 10MB)");
       return;
     }
+    if (!["image/png", "image/jpeg", "image/jpg"].includes(file.type)) {
+      setError("Only PNG and JPG images are supported");
+      return;
+    }
     setSelectedFile(file);
     setError("");
     setResultPreview(null);
@@ -40,8 +44,21 @@ export default function Home() {
     setError("");
 
     try {
+      // Read file as base64
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+      });
+      reader.readAsDataURL(selectedFile);
+      const base64 = await base64Promise;
+      
+      // Remove data URL prefix
+      const base64Data = base64.split(",")[1];
+
+      // Call Remove.bg API
       const formData = new FormData();
-      formData.append("image_file", selectedFile);
+      formData.append("image_file_b64", base64Data);
       formData.append("size", "auto");
       formData.append("format", "png");
 
@@ -53,14 +70,18 @@ export default function Home() {
         body: formData,
       });
 
+      console.log("Response status:", response.status);
+
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Remove.bg error:", response.status, errorText);
+        console.error("Remove.bg error:", errorText);
         throw new Error(errorText || `API error: ${response.status}`);
       }
 
       // Remove.bg returns the image directly as binary
       const blob = await response.blob();
+      console.log("Blob size:", blob.size);
+      
       const url = URL.createObjectURL(blob);
       setResultPreview(url);
     } catch (e: unknown) {
@@ -112,7 +133,7 @@ export default function Home() {
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept="image/png,image/jpeg,image/jpg"
             style={{ display: "none" }}
             onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
           />
