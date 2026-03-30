@@ -42,6 +42,7 @@ export default function Home() {
 
     setLoading(true);
     setError("");
+    setResultPreview(null);
 
     try {
       const arrayBuffer = await selectedFile.arrayBuffer();
@@ -51,6 +52,8 @@ export default function Home() {
         binary += String.fromCharCode(bytes[i]);
       }
       const base64 = btoa(binary);
+
+      console.log("Sending request to Remove.bg with base64 length:", base64.length);
 
       const formData = new FormData();
       formData.append("image_file_b64", base64);
@@ -66,14 +69,33 @@ export default function Home() {
         body: formData,
       });
 
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers.get("content-type"));
+
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Remove.bg error:", response.status, errorText);
-        throw new Error(errorText || `API error: ${response.status}`);
+        console.error("Remove.bg error:", errorText);
+        setError(`API Error (${response.status}): ${errorText}`);
+        return;
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("image")) {
+        const errorText = await response.text();
+        console.error("Wrong content type:", contentType, errorText);
+        setError("API returned non-image response");
+        return;
       }
 
       const blob = await response.blob();
       console.log("Result blob size:", blob.size, "type:", blob.type);
+      
+      if (blob.size < 1000) {
+        const text = await blob.text();
+        console.error("Result is too small, likely error:", text);
+        setError("API returned error: " + text.substring(0, 100));
+        return;
+      }
       
       const url = URL.createObjectURL(blob);
       setResultPreview(url);
@@ -151,7 +173,7 @@ export default function Home() {
 
           {error && (
             <div style={{ marginTop: "16px", padding: "12px", background: "#ffeeee", color: "#cc3333", borderRadius: "12px" }}>
-              <p>{error}</p>
+              <p style={{ fontSize: "12px" }}>{error}</p>
             </div>
           )}
 
